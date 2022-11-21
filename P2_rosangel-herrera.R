@@ -48,6 +48,9 @@ total_top_5 <- total_top_5[with(total_top_5, order(-total)), ]
 top_fav <- total_top_5 %>% 
   filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
   select(Team, Goals.x, Goals.y, total)
-
+#agregar año y stage de final y si ganaron o no contra quien
 #-----------------------------------------------------------------------------#
 
+#ranking fifa de como inician al mundial las 32 selecciones
+r_fifa22 <- X2022_world_cup_groups[c("FIFA Ranking", "Team")]
+r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`FIFA Ranking`)), ]
