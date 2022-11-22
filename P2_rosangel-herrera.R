@@ -49,8 +49,39 @@ top_fav <- total_top_5 %>%
   filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
   select(Team, Goals.x, Goals.y, total)
 #agregar año y stage de final y si ganaron o no contra quien
+
 #-----------------------------------------------------------------------------#
 
-#ranking fifa de como inician al mundial las 32 selecciones
+#ranking FIFA de como inician al mundial las 32 selecciones
+
 r_fifa22 <- X2022_world_cup_groups[c("FIFA Ranking", "Team")]
-r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`FIFA Ranking`)), ]
+
+r_fifa22 <- X2022_world_cup_groups
+r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`Group`)), ]
+
+#-----------------------------------------------------------------------------#
+
+#----------- Parte II Visualizacion de los datos "Data Cleaning" -------------#
+
+#ranking FIFA de como inician al mundial las 32 selecciones
+
+ggplot(r_fifa22) +
+  geom_point(aes(x = `Group`, y = `FIFA Ranking`, col = `Team`), size = (5)) +
+  theme_bw() + 
+  scale_y_continuous(breaks = seq(1, 65, 5)) +
+  geom_text(aes(colour = factor(`Team`)),
+            label = r_fifa22$Team,
+            x = r_fifa22$Group, y = r_fifa22$`FIFA Ranking`,
+            hjust = -0.25, size = 5,
+            inherit.aes = TRUE
+  ) 
+labs(title = "Ranking FIFA de las selecciones que disputaran en",
+     subtitle = "Qatar 2022",
+     caption = "Data de la base de datos otorgado por xxx",
+     tag = "Figura 1 prueba",
+     x = "Seleccion",
+     y = "Posicion",
+     colour = "Grupo"
+)
+
+#-----------------------------------------------------------------------------#
