@@ -11,7 +11,7 @@ world_cup_matches <- read_csv("World+Cup/world_cup_matches.csv")
 
 #----------- Parte I Limpieza de los datos "Data Cleaning" -------------#
 
-# Filtro de datos "top cinco (5) de equipos mas goleadores en el torneo FIFA World Cup 
+# 1 Filtro de datos "top cinco (5) de equipos mas goleadores en el torneo FIFA World Cup 
 # desde el primer torneo en Uruguay 1930"
 
 # Separacion de la tabla por equipo segun los goles obtenidos en el torneo
@@ -41,7 +41,7 @@ total_top_5 <- total_top_5[with(total_top_5, order(-total)), ]
 
 #-----------------------------------------------------------------------------#
 
-#Filtro de datos "Historicos de goles anotados en todas sus participaciones en
+# 2 Filtro de datos "Historicos de goles anotados en todas sus participaciones en
 #el torneo dentro de los cinco (5) equipos favoritos para participar a 
 #la final de Qatar 2022 segun la casa de apuesta betfair"
 
@@ -52,14 +52,14 @@ top_fav <- total_top_5 %>%
 
 #-----------------------------------------------------------------------------#
 
-#ranking FIFA de como inician al mundial las 32 selecciones
+# 3 ranking FIFA de como inician al mundial las 32 selecciones
 
 r_fifa22 <- X2022_world_cup_groups
 r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`Group`)), ]
 
 #-----------------------------------------------------------------------------#
-
-#filtro cantidad de partidos ganados por seleccion e instancias que llegaron
+# 4 Resultados de historicos de juegos en la historia del FIFA World Cup
+#  filtro cantidad de partidos ganados por seleccion e instancias que llegaron
 match_w_columns <- c("Team", "Wins")
 win_f22 <- world_cup_matches
 
@@ -119,7 +119,7 @@ all_matchs <- left_join(total_matchs, total_matchs1, by = "Team") %>%
 #Resultados de historicos de juegos en la historia del FIFA World Cup
 all_WC <- select(all_matchs, Team, Wins, Ties, Loss)
 
-#Resultados de historicos de juegos en la historia de los 32 equipos participantes 
+# 5 Resultados de historicos de juegos en la historia de los 32 equipos participantes 
 #en Qatar 2022
 
 q_2022 <- all_WC %>% 
@@ -139,7 +139,29 @@ q_2022 <- q_2022 %>%
 
 #----------- Parte II Visualizacion de los datos "Data Cleaning" -------------#
 
-#ranking FIFA de como inician al mundial las 32 selecciones
+# 2 Historicos de goles anotados en todas sus participaciones en
+#el torneo dentro de los cinco (5) equipos favoritos para participar a 
+#la final de Qatar 2022 segun la casa de apuesta betfair"
+
+top_fav %>% 
+  ggplot(aes(x = `Team`, y = total, fill = `Team`)) +
+  geom_col() +
+  scale_fill_manual(values = c("cadetblue1", "seagreen3", "seashell1", "steelblue", "tomato2"), name = "Top 5") +
+  scale_y_continuous(breaks = seq(10, 300, 25)) +
+  labs(caption = "Fuente: https://www.betfair.com/sport/football") +
+  ggtitle("Goles anotados en todas sus participaciones en el torneo del Top 5 de los
+          equipos favoritos en ganar la World Cup en Qatar 2022",
+          subtitle = "Segun los datos otorgados el 23 de Noviembre") +
+  theme_minimal() +
+  theme(plot.background = element_rect(fill = "white"),
+        panel.grid.major.x = element_line(colour = "azure4", linetype = 2), panel.grid.minor.x = element_blank(), panel.grid.major.y = element_blank(),
+        plot.title = element_text(size = 28, colour = "black", face = "bold", hjust = 0.5), plot.subtitle = element_text(size = 15, colour = "black"),
+        plot.title.position = "plot", plot.caption.position = "plot",
+        axis.title.x = element_text(colour = "black", size = 16), axis.title.y = element_blank(), axis.text = element_text(colour = "black", size = 14),
+        plot.caption = element_text(size = 12, colour = "black"))
+
+
+# 3 ranking FIFA de como inician al mundial las 32 selecciones
 
 ggplot(r_fifa22) +
   geom_point(aes(x = `Group`, y = `FIFA Ranking`, col = `Team`), size = (5)) +
