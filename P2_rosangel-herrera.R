@@ -3,6 +3,7 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 library(ggthemes)
+library(gganimate)
 
 #Carga de la base de datos en formato .CSV
 international_matches <- read_csv("World+Cup/international_matches.csv")
@@ -119,6 +120,8 @@ all_matchs <- left_join(total_matchs, total_matchs1, by = "Team") %>%
 #Resultados de historicos de juegos en la historia del FIFA World Cup
 all_WC <- select(all_matchs, Team, Wins, Ties, Loss)
 
+#----------------------------------------------------------------------------------------
+
 # 5 Resultados de historicos de juegos en la historia de los 32 equipos participantes 
 #en Qatar 2022
 
@@ -139,10 +142,33 @@ q_2022 <- q_2022 %>%
 
 #----------- Parte II Visualizacion de los datos "Data Cleaning" -------------#
 
-# 2 Historicos de goles anotados en todas sus participaciones en
+# 1 GRAFICA top cinco (5) de equipos mas goleadores en el torneo FIFA World Cup 
+# desde el primer torneo en Uruguay 1930"
+
+
+grafica <- total_top_5 %>%
+  filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
+  select(Team, Goals.x, Goals.y, total)
+
+
+ggplot(grafica, aes(x = reorder(Team, -total), y = total)) +
+  geom_segment(aes(x = reorder(Team, -total),
+                   xend = reorder(Team, -total),
+                   y = 0, yend = total),
+               color = "gray", lwd = 1) +
+  geom_point(size = 4, pch = 21, bg = 4, col = 1) +
+  xlab("Team") +
+  ylab("Goles") +
+  coord_flip() +
+  theme_minimal() +
+  transition_states(total, wrap = FALSE) +
+  shadow_mark() +
+  enter_grow()
+#----------------------------------------------------------------------------------------
+# 2 promedio de goles anotados en todas sus participaciones en
 #el torneo dentro de los cinco (5) equipos favoritos para participar a 
 #la final de Qatar 2022 segun la casa de apuesta betfair"
-
+#---- sacarle promedio
 top_fav %>% 
   ggplot(aes(x = `Team`, y = total, fill = `Team`)) +
   geom_col() +
@@ -160,7 +186,7 @@ top_fav %>%
         axis.title.x = element_text(colour = "black", size = 16), axis.title.y = element_blank(), axis.text = element_text(colour = "black", size = 14),
         plot.caption = element_text(size = 12, colour = "black"))
 
-
+#----------------------------------------------------------------------------------------
 # 3 ranking FIFA de como inician al mundial las 32 selecciones
 
 ggplot(r_fifa22) +
