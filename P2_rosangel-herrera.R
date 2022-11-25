@@ -42,13 +42,17 @@ total_top_5 <- total_top_5[with(total_top_5, order(-total)), ]
 
 #-----------------------------------------------------------------------------#
 
-# 2 Filtro de datos "Historicos de goles anotados en todas sus participaciones en
+# 2 Filtro de datos "Promedio de goles anotados en todas sus participaciones en
 #el torneo dentro de los cinco (5) equipos favoritos para participar a 
 #la final de Qatar 2022 segun la casa de apuesta betfair"
 
 top_fav <- total_top_5 %>% 
   filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
   select(Team, Goals.x, Goals.y, total)
+
+#Calculo del promedio de goles
+top_fav$Promedio <- apply(top_fav[ ,c(2,3)], 1, mean, na.rm = TRUE)
+
 #agregar año y stage de final y si ganaron o no contra quien
 
 #-----------------------------------------------------------------------------#
@@ -168,9 +172,24 @@ ggplot(grafica, aes(x = reorder(Team, -total), y = total)) +
 # 2 promedio de goles anotados en todas sus participaciones en
 #el torneo dentro de los cinco (5) equipos favoritos para participar a 
 #la final de Qatar 2022 segun la casa de apuesta betfair"
-#---- sacarle promedio
+
+ggplot(top_fav,aes(x = Team, y = Promedio, fill = Promedio)) +
+  geom_col() +
+  scale_fill_distiller(palette = "Reds", direction = 1) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    panel.grid.major.y = element_line(color = "white"),
+    panel.ontop = TRUE
+  ) +
+  transition_states(Team, wrap = FALSE) +
+  shadow_mark() +
+  enter_grow() +
+  enter_fade()
+#------------------- otra version
+
 top_fav %>% 
-  ggplot(aes(x = `Team`, y = total, fill = `Team`)) +
+  ggplot(aes(x = `Team`, y = Promedio, fill = `Team`)) +
   geom_col() +
   scale_fill_manual(values = c("cadetblue1", "seagreen3", "seashell1", "steelblue", "tomato2"), name = "Top 5") +
   scale_y_continuous(breaks = seq(10, 300, 25)) +
@@ -184,7 +203,12 @@ top_fav %>%
         plot.title = element_text(size = 28, colour = "black", face = "bold", hjust = 0.5), plot.subtitle = element_text(size = 15, colour = "black"),
         plot.title.position = "plot", plot.caption.position = "plot",
         axis.title.x = element_text(colour = "black", size = 16), axis.title.y = element_blank(), axis.text = element_text(colour = "black", size = 14),
-        plot.caption = element_text(size = 12, colour = "black"))
+        plot.caption = element_text(size = 12, colour = "black")) +
+  transition_states(Team, wrap = FALSE) +
+  shadow_mark() +
+  enter_grow() +
+  enter_fade()
+
 
 #----------------------------------------------------------------------------------------
 # 3 ranking FIFA de como inician al mundial las 32 selecciones
