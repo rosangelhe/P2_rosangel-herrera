@@ -136,7 +136,7 @@ q_2022 <- q_2022 %>%
 #----------- Parte II Visualizacion de los datos "Data Cleaning" -------------#
 
 #----------------------------------------------------------------------------------------
-# GRAFICA 1 Tabla "Total de goles en todas las selecciones en el torneo FIFA World Cup 
+# Tabla 1 Tabla "Total de goles en todas las selecciones en el torneo FIFA World Cup 
 # desde el primer torneo oficial en Uruguay 1930"
 
 reactable(
@@ -173,12 +173,25 @@ ggplot(total_top_5, aes(x = reorder(Team, -total), y = total)) +
   )
 
 #----------------------------------------------------------------------------------------
-# GRAFICA 3 promedio de goles anotados en todas sus participaciones en
+# Tabla 3 Promedio de goles anotados en todas sus participaciones en
+#el torneo dentro de los cinco (5) equipos favoritos para participar a 
+#la final de Qatar 2022 segun la casa de apuesta betfair"
+
+reactable(
+  top_fav,
+  defaultSorted = "Promedio",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    cell = data_bars(top_fav, text_position = "outside-base")
+  )
+)
+
+# GRAFICA 4 promedio de goles anotados en todas sus participaciones en
 #el torneo dentro de los cinco (5) equipos favoritos para participar a 
 #la final de Qatar 2022 segun la casa de apuesta betfair"
 
 top_fav %>% 
-  ggplot(aes(x = `Team`, y = Promedio, fill = `Team`)) +
+  ggplot(aes(x = `Team`, y = `Promedio`, fill = `Team`)) +
   geom_col() +
   scale_fill_manual(values = c("cadetblue1", "seagreen3", "seashell1", "steelblue", "tomato2"), name = "Top 5") +
   scale_y_continuous(breaks = seq(10, 300, 25)) +
@@ -196,35 +209,50 @@ top_fav %>%
   labs(title = "Promedio de goles anotado en todas sus participaciones en el",
        subtitle = "torneo dentro de los 05 equipos favoritos a participar a la final de Qatar 2022",
        caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
-       tag = "Figura 3",
+       tag = "Figura 2",
        x = "Selecciones",
        y = "Promedio de Goles",
   )
 
 #----------------------------------------------------------------------------------------
-# Grafica 4 ranking FIFA de como inician al mundial las 32 selecciones
+# Tabla 5 ranking FIFA de como inician al mundial las 32 selecciones
+
+reactable(
+  r_fifa22,
+  defaultSorted = "FIFA Ranking",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(
+    cell = data_bars(r_fifa22, text_position = "outside-base")
+  )
+)
+
+
+# Grafica 6 ranking FIFA de como inician al mundial las 32 selecciones
 
 ggplot(r_fifa22) +
-  geom_point(aes(x = `Group`, y = `FIFA Ranking`, col = `Team`), size = (5)) +
+  geom_point(aes(x = `Group`, y = `FIFA Ranking`), size = -1, pch = 20, bg = 5) +
   theme_bw() + 
   scale_y_continuous(breaks = seq(1, 65, 5)) +
-  geom_text(aes(colour = factor(`Team`)),
+  geom_text(aes(colour = factor(`Group`)),
             label = r_fifa22$Team,
             x = r_fifa22$Group, y = r_fifa22$`FIFA Ranking`,
-            hjust = -0.25, size = 5,
+            vjust = -1.25, size = 5 ,
             inherit.aes = TRUE
-  ) 
+  ) +
+  shadow_mark() +
+  enter_grow() +
+  transition_states(`FIFA Ranking`, wrap = FALSE) +
 labs(title = "Ranking FIFA de las selecciones que disputaran en",
      subtitle = "Qatar 2022",
-     caption = "Data de la base de datos otorgado por xxx",
-     tag = "Figura 1 prueba",
-     x = "Seleccion",
-     y = "Posicion",
-     colour = "Grupo"
-) #POR HACER
+     caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
+     tag = "Figura 3",
+     x = "Selecciones",
+     y = "Posicion FIFA Ranking",
+     colour = "Grupos"
+) 
 
 #-----------------------------------------------------------------------------#
-# GRAFICA 5 Tabla de Resultados de historicos de juegos en la historia del FIFA World Cup
+# Tabla 7 Tabla de Resultados de historicos de juegos en la historia del FIFA World Cup
 
 reactable(
   all_WC,
@@ -236,18 +264,13 @@ reactable(
 )
 
 #-----------------------------------------------------------------------------#
-# GRAFICA 6 Resultados de historicos de juegos en la historia de los 32 equipos participantes 
+# Tabla 8 Resultados de historicos de juegos en la historia de los 32 equipos participantes 
 #en Qatar 2022
-q_2022 %>% 
 reactable(
   q_2022,
-  pagination = FALSE,
-  theme = void(cell_padding = 1, header_font_size = 0, font_color = "#000000"),
-  columns = list(
-  spenders = colDef(show = FALSE),
-  spender_pal = colDef(show = FALSE),
-  city = colDef(maxWidth = 120, align = "right"),
-  spend_per_resident_data = colDef(
-      cell = data_bars(q_2022, fill_color_ref = "spender_pal"))
-            )
-          )
+  defaultSorted = "Wins",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    cell = data_bars(q_2022, text_position = "outside-base")
+  )
+)

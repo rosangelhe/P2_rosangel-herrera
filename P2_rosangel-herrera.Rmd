@@ -1,0 +1,404 @@
+---
+title: Métricas de interés de los equipos aspirantes a ganar la Copa del Mundo Qatar 2022
+author: "Rosangel Herrera"
+date: "2022-11-25"
+output: 
+  html_document:
+    fig_height: 7
+    fig_width: 10
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_depth: 4
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+<style type="text/css">
+  body{
+  font-size: 15pt;
+}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Panorama previo a la Copa Mundial Qatar 2022
+
+![](https://a2.espncdn.com/combiner/i?img=%2Fi%2Fleaguelogos%2Fsoccer%2F500%2F4.png)
+
+El deporte une las masas y la FIFA a través de los años ha reforzado su influencia tanto en el plano deportivo como en el político a través del futbol, el torneo actual en el que asume como sede Qatar no ha sido exento a ello, entre controversias de corrupción, violación de derechos laborales. Qatar hoy en día alberga las 32 selecciones clasificadas en las eliminatorias de las confederaciones continentales con la ilusión de ganar la copa del mundo y representar a su país.
+
+![](https://healthandfitnesshistory.com/wp-content/uploads/2016/09/hungaryfootball.jpg)
+
+Como parte de la narrativa de este análisis, es necesario conocer un poco más sobre Qatar como nación e ir incorporando el plano futbolístico de las selecciones en este evento. En primer lugar, Qatar “es una Península situada en medio de la costa Occidental y el Golfo Arábigo, entre las latitudes (24,27> y 26.10») Norte, y longitud (50.45» y 51.40») Este. Es una península que se extiende hacia el norte en las aguas del Golfo cubriendo 11,521 kilómetros cuadrados” (MÉRICA DEL SUR-PAÍSES ÁRABES CUMBRE, 2022, p. 13). Su clima es desértico moderado con veranos calientes, en cuanto a su población, esta nación desciende de las antiguas tribus árabes que emigraros de la península de arábiga y conforman un aproximado de 1.5 millones de habitantes. 
+![](https://visitqatar.com/content/dam/visitqatar/img/things-to-do/adventures/the-desert/the-desert-main.jpg/_jcr_content/renditions/medium-1280px.jpeg)
+La elección de Qatar como sede ha sido de las mas controvertidas en la historia de la World Cup dado a una serie escándalos y políticas internas del país. Sin embargo, en el “En 2010 Qatar se aseguró los derechos a la Copa del Mundo al ganar una votación de los 22 miembros ejecutivos de la FIFA. El país derrotó las candidaturas de Estados Unidos, Corea del Sur, Japón y Australia, para convertirse en la primera nación árabe en albergar el torneo." **([BBC](https://www.bbc.com/mundo/noticias-61798823)**, 2022, sp).
+
+![](https://i.dailymail.co.uk/i/pix/2012/11/18/article-2234809-16183254000005DC-205_634x441.jpg)
+
+En total serán ocho las sedes que albergarán los 64 partidos que representa el torneo de la World Cup en un total de cinco ciudades. Con 32 selecciones participantes de las 6 confederaciones continentales.
+![](https://s1.eestatic.com/2022/04/02/deportes/otros-deportes/661944139_223211490_1706x960.jpg)
+
+
+# Descripcion basica de los datos utilizados
+
+El objetivo de los siguientes datos, es realizar un análisis exploratorio para examinar las distintas métricas de interés relacionadas a los aspirantes a ganar la Copa del Mundo que se dará en Qatar 2022.  En el cual, a través de la visualización de los datos recopilados en cada Copa del Mundo desde su inicio en Uruguay 1930 se puede conocer la evolución de las selecciones participantes.
+
+En este sentido se usará como librería principal `tidyverse` para proceder con la limpieza y análisis de los datos. Consecutivamente, la librería `dplyr` para mantener la gramática del código ejecutado y la librería `readr` para la importación de los archivos en formato _.cvs_. Por último, la librería `ggplot2` permitió realizar las distintas graficas para la visualización de los datos en conjunto con las librerías `ggthemes` y `gganimate` para la optimización de los gráficos y `reactablefmtr`para las tablas.
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(ggthemes)
+library(gganimate)
+library(reactablefmtr)
+
+```
+
+## Fuente
+
+En cuanto a la fuente de recopilación de los datos desde el Archivo de la Copa Mundial de la FIFA y RSSSF, se comparte todos los partidos de las copas mundiales anteriores, las clasificaciones en partidos internacionales y los grupos concebidos para el actual torneo permitiendo crear una serie de datos que permitan mediante la visualización de datos una expectativa de Qatar 2022. Para obtener la data usada en la presentación se usó un repositorio de datos en el siguiente sitio web **[Mavenanalytics](https://www.mavenanalytics.io/blog/maven-world-cup-challenge)** en él se disponen internamente de un _zip file_ un total de 6 tablas en formato _.CVS_ con el que se albergan las Data set correspondientes para su análisis. 
+```{r}
+world_cup_matches <- read_csv("World+Cup/world_cup_matches.csv")
+X2022_world_cup_groups <- read_csv("World+Cup/2022_world_cup_groups.csv")
+```
+
+## Conceptos pertinentes
+Los datos que se alojan en las columnas permiten reconocer el registro de cada selección desde el año 1930.  Entre los conceptos que son relevantes para entender el fondo del repositorio de datos se describe los siguientes conceptos:
+
++ Team: Selección nacional del país participante o también conocido como National Team.
++ Match: Partido o juego planteado.
++ Home: Referencia a un partido en casa.
++ Away: Referencia a un partido como visitante.
++ Ranking FIFA: es el sistema de clasificación de todas las selecciones registradas en la FIFA institución en el cual considera a través de un sistema de puntaje el nivel de competitividad actual de las selecciones en diversos partidos y competiciones.
++ Wins: Cantidad de victorias de una selección en los partidos relacionados a la World Cup.
++ Ties: Cantidad de empates de una selección en los partidos relacionados a la World Cup.
++ Loss: Cantidad de derrotas de una selección en los partidos relacionados a la World Cup
+
+## Definiciones de indicadores
+
+La definición de los indicadores se encuentra enmarcado desde un tipo de observación sistemática basado en rankings, proporciones, distribuciones y otros tipos de visualizaciones con los datos recolectados en los partidos jugados en ediciones anteriores de la Copa del Mundo para ello este segmento reside en tomar en cuenta la experiencia y los datos estadísticos de las 32 selecciones según la interrogante a considerar tomando en cuenta el uso de estadísticas descriptivas para el análisis y entendimiento de los resultados.
+
+## Cantidad de observaciones y cantidad de variables encontradas
+Durante esta primera exploración la cantidad de observaciones dentro del paquete de datos obtenidos anteriormente, el primer archivo a gestionar consta de 900 observaciones y 10 variables en el archivo _“World Cup Matches.cvs”_ en él se detalla las variables `ID, Year, Date, Stage, Home Team, Home Goals, Away Goals, Away Team, Win Conditions y Host Team.` Es relevante resaltar que en cuanto a valores faltantes dentro de esta tabla se encontró dentro de la columna de Win Conditions solo _N/A._ Esto se puede observar en la parte inferior.
+```{r}
+head(world_cup_matches)
+```
+Posteriormente, se hizo uso del archivo denominado _“World Cup Groups.cvs”_ en el cual detalla las variables `Group, Team y FIFA Ranking` como igualmente se observa en la parte inferior y que consta de 32 observaciones y 03 variables en el archivo.
+```{r}
+head(X2022_world_cup_groups)
+```
+
+# Desarrollo del topico
+
+Como parte del desarrollo de las métricas de interés de los equipos aspirantes a ganar la Copa del Mundo Qatar 2022 se gestionan una serie de interrogantes relacionadas al contexto de la sede, la experiencia de las selecciones participantes y el rendimiento de los jugadores que harán vida en el torneo.
+
+## Justificación {.tabset}
+
+El deporte une a las masas y el futbol desde sus inicios no ha sido exento a ello, desde su institucionalización en 1860 separándose del Rugby como juego se crea la primera asociación del futbol. Ya para el año 1904 ante el aumento de la popularidad de este deporte surge como ente regulador la Federación Internacional de Futbol Asociación conocido popularmente como la FIFA en el cual su primer campeonato acreditada como la Copa del Mundo Uruguay 1930 con la participación tan solo 4 selecciones europeas. En la actualidad, el significado del futbol como deporte no ha variado mucho. Sin embargo, la relevancia económica, social y cultura que representa la FIFA como institución y el futbol en cada nación posee un impacto digno de ser estudiado en cada faceta en este caso será netamente deportivo.
+
+## Cuestiones Planteadas
+
+Para entender el futbol es importante conocer quienes juegan, quienes son los favoritos, cuando gana y cuando pierde. Las interrogantes planteadas responden a la narrativa de obtener un panorama general de las selecciones previo a Qatar 2022 por lo que las cuestiones planteadas se responderán a medida que surge cada interrogante. Iniciamos examinando a las selecciones con más goles en el Torneo FIFA World Cup desde su inicio con la carga de datos anteriormente descriptos para facilitar la lectura de los datos. en tanto se puede apreciar en el registro de la siguiente tabla todos los goles registrados desde el primer torneo en orden descendete de las selecciones que participaron anteriormente.
+
+## Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930"
+```{r}
+# "Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930"
+
+# Separacion de la tabla por equipo segun los goles obtenidos en el torneo
+wcup_goal <- world_cup_matches[c("Home Team", "Home Goals","Away Goals", "Away Team")]
+
+# Creacion de una nueva columna en el data frame
+team_column <- c("Team", "Goals")
+
+# filtro y asignacion de goles obtenidos en condicion de Home dentro de team_column
+h_cup <- wcup_goal %>% 
+  group_by(`Home Team`) %>%
+  summarise(`Home Goals` = sum(`Home Goals`),
+            )
+colnames(h_cup) <- c("Team", "Home")
+
+# filtro y asignacion de goles obtenidos en condicion de Away dentro de team_column
+a_cup <- wcup_goal %>%
+  group_by(`Away Team`) %>%
+  summarise(`Away Goals` = sum(`Away Goals`),
+  )
+colnames(a_cup) <- c("Team", "Away")
+
+# Union y reodenamiento de las tablas de goles obtenidos en un orden descendente 
+total_gol <- merge(h_cup, a_cup, by = "Team", all = TRUE)
+total_gol$total <- total_gol$Home + total_gol$Away
+total_gol <- total_gol[with(total_gol, order(-total)), ]
+
+```
+```{r}
+# Tabla 1 "Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930"
+reactable(
+  total_gol,
+  defaultSorted = "total",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    cell = data_bars(total_gol, text_position = "outside-base")
+  )
+)
+```
+Tal como se refleja en los primeros 10 datos de la tabla desde las variables `Team`, `Home`, `Away` y `total`. Se observa las selecciones con mayor cantidad de goles, a su vez, se ejecuta la sumatoria histórica de los goles en cada selección en base a todas sus participaciones comprimiendo a las ultimas posiciones a las selecciones con menor cantidad de anotaciones.
+
+## Top 05 selecciones con más anotaciones en la historia del torneo
+
+Tal como se percibe en la tabla anterior, se extrae el registro de las primeras 05 selecciones con más anotaciones en partidos odficiales de la World Cup, cuya estadística va liderada por la selección de Brasil.
+
+```{r}
+# Top 05 selecciones más goleadoras
+
+total_top_5 <- total_gol %>%
+  filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
+  select(Team, Home, Away, total)
+
+```
+Como se observa, históricamente la selección con más goles anotados en la historia del torneo es Brasil con 229 tantos. En segundo lugar, se encuentra la selección Argentina con 137 goles, sucesivamente se posicionan las selecciones de Francia y España con 120 y 99 goles en el tercer y cuarto lugar cubriendo en el quinto puesto la selección Inglaterra con 91 goles.
+```{r}
+# GRAFICA 2 Top 05 selecciones más goleadoras
+ggplot(total_top_5, aes(x = reorder(Team, -total), y = total)) +
+  geom_segment(aes(x = reorder(Team, -total),
+                   xend = reorder(Team, -total),
+                   y = 0, yend = total),
+               color = "gray", lwd = 1) +
+  geom_point(size = 7.5, pch = 21, bg = 4, col = 1) +
+  geom_text(aes(label = total), color = "white", size = 3) +
+  xlab("Team") +
+  ylab("") +
+  coord_flip() +
+  theme_minimal() +
+  shadow_mark() +
+  enter_grow() +
+  transition_states(total, wrap = FALSE) +
+  labs(title = "Top 05 de selecciones más goleadoras",
+       subtitle = "Qatar 2022",
+       caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
+       tag = "Figura 1",
+       x = "Selecciones",
+       y = "Cantidad de Goles",
+  )
+
+```
+
+## Promedio de goles anotados en todas sus participaciones en el torneo dentro de los 5 equipos favoritos para participar a la final de Qatar 2022 según la casa de apuesta Betfair"
+
+Ante las expectativas de los aficionados en conocer a los favoritos para participar en la final de Qatar 2022, se ha desarrollado un promedio de anotaciones entre las cinco selecciones favoritas en la casa de apuesta **[Betfair](https://www.betfair.com/sport/football)** el día 23 de noviembre de 2022 en el que, según la información suministrada en este medio, posiciona a las selecciones de Argentina, Brasil, Inglaterra, Francia y España. Como las principales aspirantes a llegar a estas instancias. 
+```{r}
+# "Promedio de goles anotados en todas sus participaciones en el torneo dentro de los cinco (5) equipos favoritos para participar a la final de Qatar 2022 segun la casa de apuesta betfair"
+
+top_fav <- total_gol %>% 
+  filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
+  select(Team, Home, Away, total)
+
+# Calculo del promedio de goles
+top_fav$Promedio <- apply(top_fav[ ,c(2,3)], 1, mean, na.rm = TRUE)
+
+# Tabla 3 Promedio de goles anotados en todas sus participaciones en
+#el torneo dentro de los cinco (5) equipos favoritos para participar a 
+#la final de Qatar 2022 segun la casa de apuesta betfair"
+
+reactable(
+  top_fav,
+  defaultSorted = "Promedio",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    cell = data_bars(top_fav, text_position = "outside-base")
+  )
+)
+
+```
+
+GRAFICA 4
+
+```{r}
+# GRAFICA 4 promedio de goles anotados en todas sus participaciones en
+# el torneo dentro de los cinco (5) equipos favoritos para participar a 
+# la final de Qatar 2022 segun la casa de apuesta betfair"
+
+top_fav %>% 
+  ggplot(aes(x = `Team`, y = Promedio, fill = `Team`)) +
+  geom_col() +
+  scale_fill_manual(values = c("cadetblue1", "seagreen3", "seashell1", "steelblue", "tomato2"), name = "Top 5") +
+  scale_y_continuous(breaks = seq(10, 300, 25)) +
+  geom_point(size = -1, pch = 20, bg = 4, col = 1) +
+  geom_text(aes(label = total),
+            vjust = 1.2, size = 4,
+            inherit.aes = TRUE,
+  ) +
+  xlab("Team") +
+  ylab("") +
+  theme_minimal() +
+  shadow_mark() +
+  enter_grow() +
+  transition_states(total, wrap = FALSE) +
+  labs(title = "Promedio de goles anotado en todas sus participaciones en el",
+       subtitle = "torneo dentro de los 05 equipos favoritos a participar a la final de Qatar 2022",
+       caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
+       tag = "Figura 2",
+       x = "Selecciones",
+       y = "Promedio de Goles",
+  )
+
+```
+
+## Ranking FIFA de como inician al mundial las 32 selecciones
+
+El siguiente ranking considera el sistema de clasificación oficial de la FIFA según los datos en la última publicación de la institución y de los datos otorgados en el data set. De acuerdo al listado, las principales selecciones que encabeza el ranking son: `Brasil`, `Bélgica`, `Argentina`, `Francia` e `Inglaterra`.
+
+```{r}
+# Ranking FIFA de como inician al mundial las 32 selecciones
+
+r_fifa22 <- X2022_world_cup_groups
+r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`Group`)), ]
+
+# Tabla 5 ranking FIFA de como inician al mundial las 32 selecciones
+
+reactable(
+  r_fifa22,
+  defaultSorted = "FIFA Ranking",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(
+    cell = data_bars(r_fifa22, text_position = "outside-base")
+  )
+)
+```
+
+Según el sitio web **[Bendito Futbol](https://www.benditofutbol.com/futbol-internacional/ranking-fifa-cabeza-de-serie-calculos.html)** los criterios para calcular los puntos del ranking consisten en:
+
++ Victoria, empate o derrota (3, 1 o 0 puntos, respectivamente)
++ Estatus del partido (coeficiente de multiplicación entre 1 y 4)
++ Fuerza del oponente (coeficiente de multiplicación entre 50 y 200)
++ Fuerza de la confederación del equipo (coeficiente de multiplicación entre 0,85 y 1,00).
+
+En este caso, solo se tomará en cuenta los datos de la data set suministrado por **[Mavenanalytics](https://www.mavenanalytics.io/blog/maven-world-cup-challenge)** en donde previamente describe los datos de la tabla y en la siguiente grafica se expone las 32 selecciones participantes en el torneo y posición.
+
+```{r}
+# Grafica 6 ranking FIFA de como inician al mundial las 32 selecciones
+
+ggplot(r_fifa22) +
+  geom_point(aes(x = `Group`, y = `FIFA Ranking`), size = -1, pch = 20, bg = 5) +
+  theme_bw() + 
+  scale_y_continuous(breaks = seq(1, 65, 5)) +
+  geom_text(aes(colour = factor(`Group`)),
+            label = r_fifa22$Team,
+            x = r_fifa22$Group, y = r_fifa22$`FIFA Ranking`,
+            vjust = -1.25, size = 5 ,
+            inherit.aes = TRUE
+  ) +
+  shadow_mark() +
+  enter_grow() +
+  transition_states(`FIFA Ranking`, wrap = FALSE) +
+labs(title = "Ranking FIFA de las selecciones que disputaran en",
+     subtitle = "Qatar 2022",
+     caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
+     tag = "Figura 3",
+     x = "Selecciones",
+     y = "Posicion FIFA Ranking",
+     colour = "Grupos"
+) 
+
+```
+
+## Resultados de históricos de juegos en la historia del FIFA World Cup
+Continuando con el análisis de los datos, se reflexiona en la siguiente tabla todos los juegos ganados, perdidos y empatados en el registro de los mundiales. Otorgando a su vez, la combinación de las tablas para agrupar cada resultado a su respectiva selección. 
+```{r}
+# Resultados de historicos de juegos en la historia del FIFA World Cup
+#Funcion comun para limpiar la data
+merge_matches <- function(df, f, cols) {
+  temp_cols <- c("Team", "Matches")
+  temp <- df
+  
+  temp1 <- temp %>% 
+    group_by(`Home Team`) %>%
+    summarise(`Home Goals` = sum(f(`Home Goals`, `Away Goals`)), )
+  colnames(temp1) <- temp_cols
+  
+  temp2 <- temp %>% 
+    group_by(`Away Team`) %>%
+    summarise(`Away Goals` = sum(f(`Away Goals`, `Home Goals`)), )
+  colnames(temp2) <- temp_cols
+  
+  total <- merge(temp1, temp2, by = "Team", all = TRUE)
+  total$Matches <- total$Matches.x + total$Matches.y
+  total <- total[with(total, order(-Matches)), ]
+  total <- select(total, Team, Matches)
+  colnames(total) <- cols
+  total
+}
+
+#  filtro cantidad de partidos ganados por seleccion e instancias que llegaron
+total_wins <- merge_matches(world_cup_matches, `>`, c("Team", "Wins"))
+
+#filtro cantidad de partidos empatados por seleccion e instancias que llegaron
+total_ties <- merge_matches(world_cup_matches, `==`, c("Team", "Ties"))
+
+#filtro cantidad de partidos perdidos por seleccion e instancias que llegaron
+total_loss <- merge_matches(world_cup_matches, `==`, c("Team", "Loss"))
+
+#Combinacion de tablas
+all_matchs <- left_join(total_wins, total_ties, by = "Team") %>%
+  left_join(total_loss, by = "Team")
+
+#Resultados de historicos de juegos en la historia del FIFA World Cup
+all_WC <- select(all_matchs, Team, Wins, Ties, Loss)
+```
+
+Como se observa, de todas las selecciones que han participado en el mundial, Brasil sigue liderando en la cantidad de partidos ganados, consecutivamente de Alemania e Italia.
+```{r}
+# Tabla 7 Tabla de Resultados de historicos de juegos en la historia del FIFA World Cup
+
+reactable(
+  all_WC,
+  defaultSorted = "Wins",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    cell = data_bars(all_WC, text_position = "outside-base")
+  )
+)
+```
+
+Por último, se reduce la tabla con las 32 selecciones que participan en la edición de Qatar 2022 bajo las mismas premisas de la tabla anterior.
+```{r}
+
+# Resultados de historicos de juegos en la historia de los 32 equipos participantes 
+#en Qatar 2022
+
+q_2022 <- all_WC %>% 
+  filter(`Team` %in% c("Qatar", "Germany", "Denmark", "Brazil", "France",
+                       "Belgium", "Croatia", "Spain", "Serbia", "England", "Switzerland", "Netherlands", 
+                       "Argentina", "Iran", "South Korea", "Japan", "Saudi Arabia", "Ecuador",
+                       "Uruguay", "Canada","Ghana", "Senegal", "Portugal", "Poland", "Tunisia", 
+                       "Morocco", "Cameroon","Mexico", "United States", "Wales", "Australia", 
+                       "Costa Rica")) %>%
+  select(Team, Wins, Ties, Loss)
+
+#Anexion de la seleccion de Qatar dado a que es su primera participacion en este torneo
+
+q_2022 <- q_2022 %>%
+  rows_upsert(data.frame(Team = "Qatar", Wins = 0, Ties = 0, Loss = 0))
+```
+Al momento de reducir la tabla anterior por las selecciones participantes en Qatar 2022 se observa una diferencia en el tercer lugar, tomando lugar la selección de argentina dado a que la selección de Italia no logró clasificarse en las últimas eliminatorias. 
+```{r}
+# Tabla 8 Resultados de historicos de juegos en la historia de los 32 equipos participantes 
+#en Qatar 2022
+reactable(
+  q_2022,
+  defaultSorted = "Wins",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    cell = data_bars(q_2022, text_position = "outside-base")
+  )
+)
+```
+
+## Conclusión
+
+Luego de realizar todo el análisis a la data set presentado, se resume las cuestiones más importantes a nivel de selecciones, entendiendo la cantidad de enfrentamientos y el resumen entre derrotas, victorias y empates a nivel de competencia mundial previo a Qatar 2022.
+A través de las distintas tablas y graficas se muestra con el análisis y la data con respecto al conjunto de datos recopilados por la FIFA en el que se pudo identificar aproximadamente 900 partidos de copa mundial. El análisis nivel de selección permitió a conocer la tendencia de los equipos favoritos, sumado a su cantidad de éxitos en los partidos y de goles anotados generando poca variación frente a equipos con menor tendencia de anotaciones.
+
