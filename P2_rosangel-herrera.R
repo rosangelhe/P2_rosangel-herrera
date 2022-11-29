@@ -1,3 +1,10 @@
+#instarlar en caso de no poseer
+
+#install.packages("readr")
+#install.packages("ggthemes")
+#install.packages("gganimate")
+#install.packages("reactablefmtr")
+
 library(tidyverse)
 library(dplyr)
 library(readr)
@@ -13,7 +20,7 @@ X2022_world_cup_groups <- read_csv("World+Cup/2022_world_cup_groups.csv")
 head(world_cup_matches)
 head(X2022_world_cup_groups)
 
-#----------- Parte I Limpieza de los datos "Data Cleaning" -------------#
+#----------- Parte I Limpieza y procesamiento de los datos -------------#
 
 # 1 Filtro de datos "Total de goles en todas las selecciones en el torneo FIFA World Cup 
 # desde el primer torneo oficial en Uruguay 1930"
@@ -132,7 +139,13 @@ q_2022 <- all_WC %>%
 q_2022 <- q_2022 %>%
   rows_upsert(data.frame(Team = "Qatar", Wins = 0, Ties = 0, Loss = 0))
 
+# 7 comparacion entre los tres candidatos fuertes dado a la cantidad de goles y de partidos ganados
+# hacer un histograma
 
+# 8 ultimas posiciones logradas de esos candidatos en mundiales anteriores
+
+# 8 medir trayectoria hacia el mundial segun la confederacion
+# grafico de ruta
 #----------- Parte II Visualizacion de los datos "Data Cleaning" -------------#
 
 #----------------------------------------------------------------------------------------
@@ -160,16 +173,16 @@ ggplot(total_top_5, aes(x = reorder(Team, -total), y = total)) +
   xlab("Team") +
   ylab("") +
   coord_flip() +
-  theme_minimal() +
-  shadow_mark() +
-  enter_grow() +
-  transition_states(total, wrap = FALSE) +
-  labs(title = "Top 05 de selecciones más goleadoras",
-       subtitle = "Qatar 2022",
+  theme_minimal() + #tema del grafico
+  shadow_mark() + #sombra de la animacion
+  enter_grow() + #animacion de crecimiento
+  transition_states(total, wrap = FALSE) + #transicion de la animacion
+  labs(title = "Top 05 de selecciones más goleadoras", #titulo del grafico
+       subtitle = "Qatar 2022", #subtitulo del grafico
        caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
        tag = "Figura 1",
-       x = "Selecciones",
-       y = "Cantidad de Goles",
+       x = "Selecciones", #etiqueta del eje x
+       y = "Cantidad de Goles", #etiqueta del eje y
   )
 
 #----------------------------------------------------------------------------------------

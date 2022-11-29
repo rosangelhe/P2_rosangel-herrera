@@ -16,7 +16,7 @@ output:
 ---
 <style type="text/css">
   body{
-  font-size: 15pt;
+  font-size: 14pt;
 }
 </style>
 ```{r setup, include=FALSE}
@@ -96,7 +96,7 @@ head(X2022_world_cup_groups)
 
 Como parte del desarrollo de las métricas de interés de los equipos aspirantes a ganar la Copa del Mundo Qatar 2022 se gestionan una serie de interrogantes relacionadas al contexto de la sede, la experiencia de las selecciones participantes y el rendimiento de los jugadores que harán vida en el torneo.
 
-## Justificación {.tabset}
+## Justificación
 
 El deporte une a las masas y el futbol desde sus inicios no ha sido exento a ello, desde su institucionalización en 1860 separándose del Rugby como juego se crea la primera asociación del futbol. Ya para el año 1904 ante el aumento de la popularidad de este deporte surge como ente regulador la Federación Internacional de Futbol Asociación conocido popularmente como la FIFA en el cual su primer campeonato acreditada como la Copa del Mundo Uruguay 1930 con la participación tan solo 4 selecciones europeas. En la actualidad, el significado del futbol como deporte no ha variado mucho. Sin embargo, la relevancia económica, social y cultura que representa la FIFA como institución y el futbol en cada nación posee un impacto digno de ser estudiado en cada faceta en este caso será netamente deportivo.
 
@@ -104,9 +104,9 @@ El deporte une a las masas y el futbol desde sus inicios no ha sido exento a ell
 
 Para entender el futbol es importante conocer quienes juegan, quienes son los favoritos, cuando gana y cuando pierde. Las interrogantes planteadas responden a la narrativa de obtener un panorama general de las selecciones previo a Qatar 2022 por lo que las cuestiones planteadas se responderán a medida que surge cada interrogante. Iniciamos examinando a las selecciones con más goles en el Torneo FIFA World Cup desde su inicio con la carga de datos anteriormente descriptos para facilitar la lectura de los datos. en tanto se puede apreciar en el registro de la siguiente tabla todos los goles registrados desde el primer torneo en orden descendete de las selecciones que participaron anteriormente.
 
-## Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930"
+## Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930
 ```{r}
-# "Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930"
+# Total de goles en todas las selecciones en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930
 
 # Separacion de la tabla por equipo segun los goles obtenidos en el torneo
 wcup_goal <- world_cup_matches[c("Home Team", "Home Goals","Away Goals", "Away Team")]
