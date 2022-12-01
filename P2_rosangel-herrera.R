@@ -1,29 +1,27 @@
-#instarlar en caso de no poseer
+#instalar en caso de no poseer
 
 #install.packages("readr")
 #install.packages("ggthemes")
 #install.packages("gganimate")
 #install.packages("reactablefmtr")
 
-library(tidyverse)
+library(tidyverse)#manejo de datos
 library(dplyr)
-library(readr)
-library(ggplot2)
-library(ggthemes)
-library(gganimate)
-library(reactablefmtr)
+library(readr)    #lectura de cvs
+library(ggplot2)  #Manejo de Grafico
+library(ggthemes) #Manejo de temas en graficos
+library(gganimate)#creacion de animaciones en graficos
+library(reactablefmtr) #mejora el estilo y el formato de las tablas 
+
 
 #Carga de la base de datos en formato .CSV
 world_cup_matches <- read_csv("World+Cup/world_cup_matches.csv")
 X2022_world_cup_groups <- read_csv("World+Cup/2022_world_cup_groups.csv")
-
-head(world_cup_matches)
 head(X2022_world_cup_groups)
-
+head(world_cup_matches)
 #----------- Parte I Limpieza y procesamiento de los datos -------------#
 
-# 1 Filtro de datos "Total de goles en todas las selecciones en el torneo FIFA World Cup 
-# desde el primer torneo oficial en Uruguay 1930"
+# 1 Cantidad de anotaciones por selección en el torneo FIFA World Cup desde el primer torneo oficial en Uruguay 1930
 
 # Separacion de la tabla por equipo segun los goles obtenidos en el torneo
 wcup_goal <- world_cup_matches[c("Home Team", "Home Goals","Away Goals", "Away Team")]
@@ -53,9 +51,9 @@ total_gol <- total_gol[with(total_gol, order(-total)), ]
 #-----------------------------------------------------------------------------#
 
 # 2 Top 05 selecciones más goleadoras
-
+fav_teams <- c("Brazil", "Argentina", "France", "Spain", "England")
 total_top_5 <- total_gol %>%
-  filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
+  filter(`Team` %in% fav_teams) %>%
   select(Team, Home, Away, total)
 
 #-----------------------------------------------------------------------------#
@@ -65,11 +63,23 @@ total_top_5 <- total_gol %>%
 #la final de Qatar 2022 segun la casa de apuesta betfair"
 
 top_fav <- total_gol %>% 
-  filter(`Team` %in% c("Brazil", "Argentina", "France", "Spain", "England")) %>%
+  filter(`Team` %in% fav_teams) %>%
   select(Team, Home, Away, total)
 
-#Calculo del promedio de goles
-top_fav$Promedio <- apply(top_fav[ ,c(2,3)], 1, mean, na.rm = TRUE)
+#conteo de todos los partidos jugados de las seleciones favoritas
+home_matches <- world_cup_matches %>%
+  select(Year, `Home Team`, `Home Goals`) %>%
+  rename(Team = `Home Team`, Goals = `Home Goals`)
+away_matches <- world_cup_matches %>%
+  select(Year, `Away Team`, `Away Goals`) %>%
+  rename(Team = `Away Team`, Goals = `Away Goals`)
+all_matches <- rbind(home_matches, away_matches) %>% 
+  filter(`Team` %in% fav_teams) %>%
+  select(Team) %>%
+  add_count(`Team`, name = "Matches") %>%
+  unique()
+top_fav <- left_join(top_fav, all_matches, by = "Team") #union de tablas
+top_fav$avg <- top_fav$total/top_fav$Matches #calculo de promedio de goles
 
 
 #-----------------------------------------------------------------------------#
@@ -77,14 +87,14 @@ top_fav$Promedio <- apply(top_fav[ ,c(2,3)], 1, mean, na.rm = TRUE)
 # 4 ranking FIFA de como inician al mundial las 32 selecciones
 
 r_fifa22 <- X2022_world_cup_groups
-r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`Group`)), ]
+r_fifa22 <- r_fifa22[with(r_fifa22, order(r_fifa22$`Group`)), ] 
 
 #-----------------------------------------------------------------------------#
 # 5 Resultados de historicos de juegos en la historia del FIFA World Cup
 #Funcion comun para limpiar la data
-merge_matches <- function(df, f, cols) {
-  temp_cols <- c("Team", "Matches")
+merge_matches <- function(df, f, cols) { # a traves de la funcion se obtiene los partidos ganados, perdidos y empatados
   temp <- df
+  temp_cols <- c("Team", "Matches") 
   
   temp1 <- temp %>% 
     group_by(`Home Team`) %>%
@@ -125,7 +135,7 @@ all_WC <- select(all_matchs, Team, Wins, Ties, Loss)
 # 6 Resultados de historicos de juegos en la historia de los 32 equipos participantes 
 #en Qatar 2022
 
-q_2022 <- all_WC %>% 
+q_2022 <- all_WC %>% #filtro de las selecciones
   filter(`Team` %in% c("Qatar", "Germany", "Denmark", "Brazil", "France",
                        "Belgium", "Croatia", "Spain", "Serbia", "England", "Switzerland", "Netherlands", 
                        "Argentina", "Iran", "South Korea", "Japan", "Saudi Arabia", "Ecuador",
@@ -139,13 +149,63 @@ q_2022 <- all_WC %>%
 q_2022 <- q_2022 %>%
   rows_upsert(data.frame(Team = "Qatar", Wins = 0, Ties = 0, Loss = 0))
 
-# 7 comparacion entre los tres candidatos fuertes dado a la cantidad de goles y de partidos ganados
-# hacer un histograma
+#----------------------------------------------------------------------------------------
 
+# 7 comparacion entre los candidatos fuertes dado a la cantidad de goles y de partidos ganados
+
+top_4 <- total_wins$Team[1:4] #en este caso se obtienen a los 4 candidatos fuertes
+home_matches <- world_cup_matches %>%
+  select(Year, `Home Team`, `Home Goals`) %>% #luego se obtienen los goles obtenidos segun su condicion
+  rename(Team = `Home Team`, Goals = `Home Goals`)
+away_matches <- world_cup_matches %>%
+  select(Year, `Away Team`, `Away Goals`) %>%
+  rename(Team = `Away Team`, Goals = `Away Goals`)
+all_matches <- rbind(home_matches, away_matches)
+
+#----------------------------------------------------------------------------------------
 # 8 ultimas posiciones logradas de esos candidatos en mundiales anteriores
+top_4 <- total_wins$Team[1:4]
+home_matches_by_stage <- world_cup_matches %>%
+  select(Year, `Home Team`, `Stage`) %>%
+  rename(Team = `Home Team`)
+away_matches_by_stage <- world_cup_matches %>%
+  select(Year, `Away Team`, `Stage`) %>%
+  rename(Team = `Away Team`)
+all_matches_by_stage <- rbind(home_matches_by_stage, away_matches_by_stage)
 
-# 8 medir trayectoria hacia el mundial segun la confederacion
-# grafico de ruta
+stages <- c("First group stage",
+            "Second group stage",
+            "First round",
+            "Final round",
+            "Group stage",
+            "Round of 16",
+            "Quarter-finals",
+            "Semi-finals",
+            "Third place",
+            "Final"
+            )
+
+# 9 ganadores de la copa
+#lista de paises que participaron en las finales
+final_rounds <- world_cup_matches %>% 
+  filter(`Stage` == "Final round") %>%
+  select(`Year`, `Home Team`, `Away Team`) %>%
+  rename(Team = `Home Team`, Against = `Away Team`)
+final_round <- tail(final_rounds, n = 1) 
+
+finals <- world_cup_matches %>%
+  filter(`Stage` == "Final") 
+finals_home <- finals %>%
+  filter(`Home Goals` > `Away Goals` | `Home Goals` == `Away Goals`) %>%
+  select(`Year`, `Home Team`, `Away Team`) %>%
+  rename(Team = `Home Team`, Against = `Away Team`)
+finals_away <- finals %>%
+  filter(`Away Goals` > `Home Goals`) %>%
+  select(`Year`, `Home Team`, `Away Team`) %>%
+  rename(Team = `Away Team`, Against = `Home Team`)
+all_finals <- rbind(finals_home, finals_away, final_round) %>%
+  add_count(`Team`, name = "Times")
+
 #----------- Parte II Visualizacion de los datos "Data Cleaning" -------------#
 
 #----------------------------------------------------------------------------------------
@@ -161,7 +221,7 @@ reactable(
   )
 )
 
-# GRAFICA 2 Top 05 selecciones más goleadoras
+# GRAFICA 2 Top 5 selecciones más goleadoras
 
 ggplot(total_top_5, aes(x = reorder(Team, -total), y = total)) +
   geom_segment(aes(x = reorder(Team, -total),
@@ -192,7 +252,7 @@ ggplot(total_top_5, aes(x = reorder(Team, -total), y = total)) +
 
 reactable(
   top_fav,
-  defaultSorted = "Promedio",
+  defaultSorted = "avg",
   defaultSortOrder = "desc",
   defaultColDef = colDef(
     cell = data_bars(top_fav, text_position = "outside-base")
@@ -204,21 +264,13 @@ reactable(
 #la final de Qatar 2022 segun la casa de apuesta betfair"
 
 top_fav %>% 
-  ggplot(aes(x = `Team`, y = `Promedio`, fill = `Team`)) +
+  ggplot(aes(x = `Team`, y = `avg`, fill = `Team`)) +
   geom_col() +
   scale_fill_manual(values = c("cadetblue1", "seagreen3", "seashell1", "steelblue", "tomato2"), name = "Top 5") +
-  scale_y_continuous(breaks = seq(10, 300, 25)) +
-  geom_point(size = -1, pch = 20, bg = 4, col = 1) +
-  geom_text(aes(label = total),
-            vjust = 1.2, size = 4,
-            inherit.aes = TRUE,
-  ) +
+  geom_text(aes(label = round(avg, digits = 2)), vjust = -1) +
   xlab("Team") +
   ylab("") +
   theme_minimal() +
-  shadow_mark() +
-  enter_grow() +
-  transition_states(total, wrap = FALSE) +
   labs(title = "Promedio de goles anotado en todas sus participaciones en el",
        subtitle = "torneo dentro de los 05 equipos favoritos a participar a la final de Qatar 2022",
        caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
@@ -241,28 +293,18 @@ reactable(
 
 
 # Grafica 6 ranking FIFA de como inician al mundial las 32 selecciones
-
-ggplot(r_fifa22) +
-  geom_point(aes(x = `Group`, y = `FIFA Ranking`), size = -1, pch = 20, bg = 5) +
-  theme_bw() + 
-  scale_y_continuous(breaks = seq(1, 65, 5)) +
-  geom_text(aes(colour = factor(`Group`)),
-            label = r_fifa22$Team,
-            x = r_fifa22$Group, y = r_fifa22$`FIFA Ranking`,
-            vjust = -1.25, size = 5 ,
-            inherit.aes = TRUE
-  ) +
-  shadow_mark() +
-  enter_grow() +
-  transition_states(`FIFA Ranking`, wrap = FALSE) +
-labs(title = "Ranking FIFA de las selecciones que disputaran en",
-     subtitle = "Qatar 2022",
-     caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
-     tag = "Figura 3",
-     x = "Selecciones",
-     y = "Posicion FIFA Ranking",
-     colour = "Grupos"
-) 
+ggplot(r_fifa22, aes(y = Team, x = `FIFA Ranking`, color = `Group`, fill = `Group`)) +
+  geom_bar(stat = 'identity', width = 0.5, alpha = 0.25) +
+  geom_text(aes(label = `FIFA Ranking`), hjust = -1) +
+  theme_minimal() +
+  facet_wrap(~Group, scales = "free_y") +
+  labs(title = "Ranking FIFA de las selecciones que disputaran en",
+       subtitle = "Qatar 2022",
+       caption = "Fuente: Archivo de la Copa Mundial de la FIFA y RSSSF",
+       tag = "Figura 3",
+       y = "Selecciones",
+       x = "Posicion FIFA Ranking"
+  )
 
 #-----------------------------------------------------------------------------#
 # Tabla 7 Tabla de Resultados de historicos de juegos en la historia del FIFA World Cup
@@ -287,3 +329,44 @@ reactable(
     cell = data_bars(q_2022, text_position = "outside-base")
   )
 )
+
+# Grafica 9 comparacion entre los candidatos fuertes dado a la cantidad de goles y de partidos ganados
+
+all_matches %>%
+  filter(`Team` %in% top_4) %>%
+  group_by(`Team`, `Year`) %>%
+  summarise(`Goals` = sum(Goals)) %>%
+  ggplot(aes(x = factor(Year), y = Goals, color = Team, fill = Team)) +
+  geom_bar(stat = "identity", width = 0.5, alpha = 0.15) +
+  geom_text(aes(label = Goals), vjust = -1) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45)) +
+  ggtitle("Comparacion entre los 4 principales participantes", "Por pais") +
+  facet_wrap(~ Team)
+
+#----------------------------------------------------------------------------------------
+# Grafica 10 posiciones logradas de esos candidatos en mundiales anteriores
+
+all_matches_by_stage %>%
+  filter(`Team` %in% top_4) %>%
+  group_by(`Team`, `Year`, `Stage`) %>%
+  distinct() %>%
+  ggplot(aes(x = factor(Stage, levels = stages), color = Team, fill = Team)) +
+  geom_bar(width = 0.5, alpha = 0.15) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -1) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45)) +
+  ggtitle("Comparacion entre 4 principales participantes", "Por pais") +
+  facet_wrap(~ Team)
+
+#----------------------------------------------------------------------------------------
+# grafica 11 ganadores de la copa
+all_finals %>%
+  select(`Team`, `Times`) %>%
+  unique() %>%
+  arrange(Times) %>%
+  ggplot(aes(x = reorder(Team, -Times), y = Times, color = Team, fill = Team, reorder(Team, Times))) +
+  geom_bar(stat = "identity", width = 0.5, alpha = 0.15) +
+  geom_text(aes(label = Times), vjust = -1) +
+  theme_minimal() +
+  ggtitle("Copas ganadas", "Por pais")
